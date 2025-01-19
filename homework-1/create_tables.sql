@@ -1,23 +1,26 @@
 -- SQL-команды для создания таблиц
-CREATE TABLE IF NOT EXISTS customers(
-	customer_id VARCHAR(5) PRIMARY KEY,
-	company_name VARCHAR(100),
-	contact_name VARCHAR(100)
+CREATE TABLE customers_data
+(
+	customer_id varchar PRIMARY KEY,
+	company_name varchar(100),
+	contact_name varchar(100)
 );
 
-CREATE TABLE IF NOT EXISTS employees(
-	employee_id INT PRIMARY KEY,
-	first_name VARCHAR(50),
-	last_name VARCHAR(50),
-	title VARCHAR(100),
-	birth_date DATE,
-	notes TEXT
+CREATE TABLE employees_data
+(
+	employee_id int PRIMARY KEY,
+	first_name varchar(100),
+	last_name varchar(100),
+	title varchar(100),
+	birth_date date,
+	notes varchar
 );
 
-CREATE TABLE IF NOT EXISTS orders (
-    order_id INT PRIMARY KEY,
-    customer_id VARCHAR(5) REFERENCES customers(customer_id) ON DELETE CASCADE,
-    employee_id INT REFERENCES employees(employee_id) ON DELETE CASCADE,
-    order_date DATE,
-    ship_city VARCHAR(50)
-);
+CREATE TABLE orders_data
+(
+	order_id int PRIMARY KEY,
+	customer_id varchar REFERENCES customers_data(customer_id),
+	employee_id int REFERENCES employees_data(employee_id),
+	order_date date,
+	ship_city varchar(100)
+)
