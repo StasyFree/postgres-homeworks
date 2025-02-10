@@ -1,44 +1,43 @@
 """Скрипт для заполнения данными таблиц в БД Postgres."""
 import psycopg2
-from dotenv import load_dotenv
 import csv
-import os
 
-if __name__ == "__main__":
+file_cust = '/Users/berez/PycharmProjects/postgres_homework/postgres-homeworks/homework-1/north_data/customers_data.csv'
+file_employ = '/Users/berez/PycharmProjects/postgres_homework/postgres-homeworks/homework-1/north_data/employees_data.csv'
+file_order = '/Users/berez/PycharmProjects/postgres_homework/postgres-homeworks/homework-1/north_data/orders_data.csv'
 
-    # Получение абсолютного пути к папке с файлами CSV
-    csv_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "north_data"))
-
-    # Получение путей к CSV-файлам с данными
-    csv_files = {
-        "customers": os.path.join(csv_folder, "customers_data.csv"),
-        "employees": os.path.join(csv_folder, "employees_data.csv"),
-        "orders": os.path.join(csv_folder, "orders_data.csv")
-    }
-    load_dotenv()
-
-    DB_HOST = os.getenv('DB_HOST')
-    DB_NAME = os.getenv('DB_NAME')
-    DB_USER = os.getenv('DB_USER')
-    DB_PASSWORD = os.getenv('DB_PASSWORD')
-
-    connection = psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
-    )
-    cursor = connection.cursor()
-
-    for table, csv_file in csv_files.items():
-        with open(csv_file, "r", encoding='utf-8') as file:
-            csv_reader = csv.DictReader(file)
+with psycopg2.connect(
+    host='localhost',
+    database='north',
+    user='postgres',
+    password='root'
+) as conn:
+    with conn.cursor() as cur:
+        with open(file_cust) as csv_file:
+            header = next(csv_file)
+            csv_reader = csv.reader(csv_file)
             for row in csv_reader:
-                columns = ", ".join(row.keys())
-                values = ", ".join(["%s"] * len(row))
-                insert_query = f"INSERT INTO {table} ({columns}) VALUES ({values})"
-                cursor.execute(insert_query, list(row.values()))
+                query = """INSERT INTO customers_data
+                VALUES (%s, %s, %s)"""
 
-    connection.commit()
-    cursor.close()
-    connection.close()
+                cur.execute(query, row)
+    with conn.cursor() as cur:
+        with open(file_employ) as csv_file:
+            header = next(csv_file)
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                query = """INSERT INTO employees_data
+                VALUES (%s, %s, %s, %s, %s, %s)"""
+
+                cur.execute(query, row)
+    with conn.cursor() as cur:
+        with open(file_order) as csv_file:
+            header = next(csv_file)
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                query = """INSERT INTO orders_data
+                VALUES (%s, %s, %s, %s, %s)"""
+
+                cur.execute(query, row)
+# close cursor and connection
+conn.close()
